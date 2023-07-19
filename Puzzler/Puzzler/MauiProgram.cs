@@ -19,7 +19,10 @@ public static class MauiProgram
 		builder.Logging.AddDebug();
 #endif
 
-		return builder.Build();
+        // Register the data layer.
+        builder.Services.AddSingleton<Context>();
+
+        return builder.Build();
 	}
 }
 
