@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="Puzzler.Pages.HomePage">
+    <Grid RowDefinitions="*,*">
+        <Label 
+            Text="Puzzler"
+            TextTransform="Uppercase"
+            FontSize="80"
+            VerticalOptions="End" 
+            HorizontalOptions="Center" />
+
+        <Button
+            ImageSource="{FontImage &#xf1c8;, FontFamily=Ionicons, Size=44}"
+            Grid.Row="1"
+            VerticalOptions="Start" 
+            HorizontalOptions="Center"
+            Clicked="OnPlayButtonClicked"/>
+    </Grid>
+</ContentPage>
