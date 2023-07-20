@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Puzzler.Pages;
 
 namespace Puzzler;
 
@@ -22,6 +23,12 @@ public static class MauiProgram
 
         // Register the data layer.
         builder.Services.AddSingleton<Context>();
+
+        // Register the pages.
+        builder.Services.AddTransient<LevelSelectionPage>();
+
+        // Register the routes to the pages.
+        Routing.RegisterRoute(nameof(LevelSelectionPage), typeof(LevelSelectionPage));
 
         return builder.Build();
 	}
