@@ -7,7 +7,8 @@ public partial class HomePage : ContentPage
         InitializeComponent();
     }
 
-    void OnPlayButtonClicked(object sender, EventArgs e)
+    async void OnPlayButtonClicked(object sender, EventArgs e)
     {
+        await Shell.Current.GoToAsync(nameof(LevelSelectionPage));
     }
 }
