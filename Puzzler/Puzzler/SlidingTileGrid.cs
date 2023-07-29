@@ -67,7 +67,7 @@ public class SlidingTileGrid : GraphicsView, IDrawable
         }
 
         // Check if there is any empty tile location nextdoor.
-        MoveTile(matchingTile);
+        MoveTile(matchingTile, true);
     }
 
     protected override void OnSizeAllocated(double width, double height)
@@ -126,7 +126,7 @@ public class SlidingTileGrid : GraphicsView, IDrawable
         }
     }
 
-    private void MoveTile(Tile matchingTile)
+    private void MoveTile(Tile matchingTile, bool checkForCompletion)
     {
         var distance = this.emptyTile.CurrentPosition.Distance(matchingTile.CurrentPosition);
 
@@ -137,9 +137,11 @@ public class SlidingTileGrid : GraphicsView, IDrawable
             this.emptyTile.CurrentPosition = oldPosition;
 
             matchingTile.CurrentPosition = newPosition;
+            this.Invalidate();
 
             // Check to see if all tiles are in their correct positions.
-            if (this.tiles.All(t => t.CurrentPosition == t.DestinationPosition))
+            if (checkForCompletion &&
+                this.tiles.All(t => t.CurrentPosition == t.DestinationPosition))
             {
                 this.Completed?.Invoke(this, EventArgs.Empty);
             }
