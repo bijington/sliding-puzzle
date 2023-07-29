@@ -25,9 +25,11 @@ public static class MauiProgram
         builder.Services.AddSingleton<Context>();
 
         // Register the pages.
+        builder.Services.AddTransient<LevelPage>();
         builder.Services.AddTransient<LevelSelectionPage>();
 
         // Register the routes to the pages.
+        Routing.RegisterRoute(nameof(LevelPage), typeof(LevelPage));
         Routing.RegisterRoute(nameof(LevelSelectionPage), typeof(LevelSelectionPage));
 
         return builder.Build();
