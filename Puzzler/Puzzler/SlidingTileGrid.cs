@@ -18,6 +18,8 @@ public class SlidingTileGrid : GraphicsView, IDrawable
 
     public event EventHandler<EventArgs> Completed;
 
+    public bool AreAnimationsEnabled { get; set; }
+
     public float TileSpacing { get; set; } = 10;
 
     public static readonly BindableProperty LevelProperty =
@@ -67,7 +69,7 @@ public class SlidingTileGrid : GraphicsView, IDrawable
         }
 
         // Check if there is any empty tile location nextdoor.
-        MoveTile(matchingTile, true);
+        MoveTile(matchingTile, true, true);
     }
 
     protected override void OnSizeAllocated(double width, double height)
@@ -120,14 +122,40 @@ public class SlidingTileGrid : GraphicsView, IDrawable
             }
         }
 
-        foreach (var tile in this.tiles)
+        if (AreAnimationsEnabled)
         {
-            tile.Offset = TileSpacing;
-        }
+            new Animation(
+                v =>
+                {
+                    foreach (var tile in this.tiles)
+                    {
+                        tile.Offset = (float)v;
+                    }
 
-        if (this.IsEnabled)
+                    this.Invalidate();
+                },
+                0,
+                TileSpacing,
+                Easing.SpringOut)
+                .Commit(
+                    this,
+                    "Load",
+                    length: 750,
+                    finished: (v, d) => ShuffleTiles(200));
+        }
+        else
         {
-            this.ShuffleTiles(200);
+            foreach (var tile in this.tiles)
+            {
+                tile.Offset = TileSpacing;
+            }
+
+            this.Invalidate();
+
+            if (this.IsEnabled)
+            {
+                this.ShuffleTiles(200);
+            }
         }
     }
 
@@ -141,13 +169,13 @@ public class SlidingTileGrid : GraphicsView, IDrawable
 
             var randomIndex = random.Next(possibleMovements.Count);
 
-            MoveTile(possibleMovements[randomIndex], false);
+            MoveTile(possibleMovements[randomIndex], false, false);
         }
 
         this.Invalidate();
     }
 
-    private void MoveTile(Tile matchingTile, bool checkForCompletion)
+    private void MoveTile(Tile matchingTile, bool checkForCompletion, bool animateMovement)
     {
         var distance = this.emptyTile.CurrentPosition.Distance(matchingTile.CurrentPosition);
 
@@ -157,15 +185,58 @@ public class SlidingTileGrid : GraphicsView, IDrawable
             var newPosition = this.emptyTile.CurrentPosition;
             this.emptyTile.CurrentPosition = oldPosition;
 
-            matchingTile.CurrentPosition = newPosition;
-
-            this.Invalidate();
-
-            // Check to see if all tiles are in their correct positions.
-            if (checkForCompletion &&
-                this.tiles.All(t => t.CurrentPosition == t.DestinationPosition))
+            if (animateMovement)
             {
-                this.Completed?.Invoke(this, EventArgs.Empty);
+                var movementAnimation = new Animation();
+
+                // Animate the X
+                movementAnimation.Add(
+                    0,
+                    1,
+                    new Animation(
+                        x =>
+                        {
+                            matchingTile.CurrentPosition = new PointF((float)x, matchingTile.CurrentPosition.Y);
+                        },
+                        oldPosition.X,
+                        newPosition.X));
+
+                // Animate the Y
+                movementAnimation.Add(
+                    0,
+                    1,
+                    new Animation(
+                        y =>
+                        {
+                            matchingTile.CurrentPosition = new PointF(matchingTile.CurrentPosition.X, (float)y);
+                            this.Invalidate();
+                        },
+                        oldPosition.Y,
+                        newPosition.Y));
+
+                movementAnimation.Commit(
+                    this,
+                    "Movement",
+                    length: 250,
+                    finished: (v, d) =>
+                    {
+                        if (checkForCompletion &&
+                            this.tiles.All(t => t.CurrentPosition == t.DestinationPosition))
+                        {
+                            this.Completed?.Invoke(this, EventArgs.Empty);
+                        }
+                    });
+            }
+            else
+            {
+                matchingTile.CurrentPosition = newPosition;
+                this.Invalidate();
+
+                if (checkForCompletion &&
+                    this.tiles.All(t => t.CurrentPosition == t.DestinationPosition))
+                {
+                    this.Completed?.Invoke(this, EventArgs.Empty);
+                }
             }
         }
     }
