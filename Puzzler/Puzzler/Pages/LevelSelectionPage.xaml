@@ -9,6 +9,7 @@
             x:Name="LevelsCollectionView"
             SelectionMode="Single"
             SelectionChanged="OnLevelsCollectionViewSelectionChanged"
+            ChildAdded="OnLevelsCollectionViewChildAdded"
             Margin="50">
 
             <CollectionView.ItemsLayout>
