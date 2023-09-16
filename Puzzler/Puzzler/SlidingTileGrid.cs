@@ -176,7 +176,6 @@ public class SlidingTileGrid : GraphicsView, IDrawable
         {
             // Save and then reset the state of the canvas ahead of allowing a tile to draw.
             canvas.SaveState();
-            canvas.ResetState();
 
             tile.Draw(canvas);
 
